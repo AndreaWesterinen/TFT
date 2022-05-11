@@ -1,0 +1,8 @@
+[submodule "tests/rdf-tests"]
+	path = tests/rdf-tests
+	url = https://github.com/AndreaWesterinen/rdf-tests
+	branch = master
+[submodule "tests/geosparql-tests"]
+	path = tests/geosparql-tests
+	url = https://github.com/AndreaWesterinen/GeoSPARQLBenchmark-Tests
+	branch = master
