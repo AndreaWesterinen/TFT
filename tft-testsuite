@@ -42,7 +42,7 @@ require_once 'fuseki/FusekiTestSuite.php';
 require_once 'sesame/SesameTestSuite.php';
 
 // Parse with sections
-$CONFIG = parse_ini_file("config.ini", true);
+$CONFIG = parse_ini_file("config-testsuite.ini", true);
 //print_r($CONFIG);
 //exit();
 
