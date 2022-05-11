@@ -23,10 +23,12 @@ class Tools
     public static function loadData($endpoint,$urldata,$graph = "DEFAULT"){
 		global $modeDebug,$modeVerbose;
 		$endpoint->ResetErrors();
+        // Adjust for the difference in names
+        $newUrl = str_replace("manifest#", "", $urldata);
 		if($graph == "DEFAULT"){
-			$q = 'LOAD <'.$urldata.'>';
+			$q = 'LOAD <'.$newUrl.'>';
 		}else{
-			$q = 'LOAD <'.$urldata.'> INTO GRAPH <'.$graph.'>';
+			$q = 'LOAD <'.$newUrl.'> INTO GRAPH <'.$graph.'>';
 		}
 
 		$res = $endpoint->queryUpdate($q);

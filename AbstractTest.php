@@ -55,7 +55,8 @@ abstract class abstractTest
         $file = "";
         foreach ($listTestSuite as $URL => $folder) {
             if (0 === strpos($urlToDownload, $URL)) {
-                $file = str_replace($URL, $folder, $urlToDownload);
+                $file0 = str_replace($URL, $folder, $urlToDownload);
+                $file = str_replace("manifest#", "", $file0);
             }
         }
         if (empty($file)) {
