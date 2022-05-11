@@ -187,7 +187,20 @@ EOT;
 		}';
 		$rowsGraph = $ENDPOINT->query($qGraphInput,"rows");
 		foreach ($rowsGraph["result"]["rows"] as $rowGraph){
-			$this->addGraphInput($rowGraph["graphData"],$rowGraph["endpoint"],"DEFAULT",$rowGraph["endpoint"]);
+            $graphName = $rowGraph["graphData"];
+            // Get the graph data from the local rdf-tests repository published as a simple HTTP server
+            if (str_contains($graphName, "http://www.w3.org/2009/sparql/docs/tests/data-sparql11/")) {
+                $graph0 = str_replace("http://www.w3.org/2009/sparql/docs/tests", "http://localhost:8080/rdf-tests/sparql11", $rowGraph["graphData"]);
+            } elseif (str_contains($graphName, "https://bordercloud.github.io/rdf-tests/sparql11/data-sparql11/")) {
+                $graph0 = str_replace("https://bordercloud.github.io", "http://localhost:8080", $rowGraph["graphData"]);
+            } else {
+                $graph0 = str_replace("https://AndreaWesterinen.github.io/GeoSPARQLBenchmark-Tests", "http://localhost:8080/geosparql-tests",
+                                      $rowGraph["graphData"]);
+            }
+            if (isset($graph0)) {
+                $graphName = str_replace("manifest#", "", $graph0);
+            }
+            $this->addGraphInput($graphName,$rowGraph["endpoint"],"DEFAULT",$rowGraph["endpoint"]);
 		}
 	}
 
@@ -364,21 +377,44 @@ EOT;
 
         $message .=  "Number of graphs expected : ".count($this->ListGraphOutput)." \n\n";
         foreach ($this->ListGraphOutput as $name=>$dataOutput) {
-            //read data
-            $expected = $this->LoadContentFile($dataOutput["url"]);
-            //print_r($this->ListGraphResult);
-            $message .=  "\n================================================================= \n";
-            $message .=  "Expected data in graph : \n\n";
-            $message .=  "FILE  <".$dataOutput["url"]."> \n";
-            $message .= "GRAPH <".$dataOutput["graphname"]."> :\n";
-            $message .= $expected."\n";
+            // Need to process alternatives for GeoSPARQL
+            if (str_contains($dataOutput["url"], "-alternative-")) {
+                $nbAlternatives = intval(substr($dataOutput["url"], strpos($dataOutput["url"], "-alternative-") + 13, 1));
+                $base_name = substr($dataOutput["url"], 0, strpos($dataOutput["url"], "-alternative-") + 12);
+                $results_arr = array();
+                foreach (range(1, $nbAlternatives) as $i) {
+                    array_push($results_arr, $base_name . strval($i) . ".srx");
+                }
+                $message .=  "\n================================================================= \n";
+                $message .=  "Processing multiple alternative outputs \n\n";
+            } else {
+                $results_arr = array($dataOutput["url"]);    // Only have 1 results file
+            }
+            foreach ($results_arr as $value) {    // Iterate through the possible results
+                //read data
+                $expected = $this->LoadContentFile($value);
+                //print_r($this->ListGraphResult);
+                $message .=  "\n================================================================= \n";
+                $message .=  "Expected data in graph : \n\n";
+                $message .=  "FILE  <".$value."> \n";
+                $message .= "GRAPH <".$dataOutput["graphname"]."> :\n";
+                $message .= $expected."\n";
 
-            $message .= $this->checkDataInGraph($dataOutput["graphname"],
-                $dataOutput["mimetype"],
-                $expected,
-                $this->ListGraphResult[$dataOutput["graphname"]],
-                $dataOutput["url"]);
-            $message .=  "\n================================================================= \n";
+                $message .= $this->checkDataInGraph($dataOutput["graphname"],
+                    $dataOutput["mimetype"],
+                    $expected,
+                    $this->ListGraphResult[$dataOutput["graphname"]],
+                    $value);
+                    $message .=  "\n================================================================= \n";
+                // Do the outputs match?
+                if (isset($this->_tabDiff) and count($this->_tabDiff) == 0) {
+                    break;
+                }
+            }
+            if (str_contains($dataOutput["url"], "-alternative-")) {
+                $message .=  "Processing multiple alternative outputs complete \n\n";
+                $message .=  "\n================================================================= \n";
+            }
         }
 		return $message;
 	}
@@ -548,8 +584,9 @@ EOT;
 		    foreach ($CONFIG["SERVICE"]["endpoint"] as $tempEndpoint){
 			    // TODO query to identify the software...
 			    $endpoint = new SparqlClient($modeDebug);
-			    $endpoint->setEndpointRead($tempEndpoint);
-			    $endpoint->setEndpointWrite($tempEndpoint);
+                // Need to add "update" as for the test suite DB and test DB
+                $endpoint->setEndpointRead($tempEndpoint . "update");
+                $endpoint->setEndpointWrite($tempEndpoint . "update");
 
 			    $q = "DELETE { GRAPH ?g  { ?o ?p ?v } } WHERE  { GRAPH ?g  { ?o ?p ?v . } }";
 			   //echo "t:".$tempEndpoint."\n";
@@ -593,8 +630,9 @@ EOT;
 				$tempEndpoint = $CONFIG["SERVICE"]["endpoint"][$nameEndpoint];
 
 				$endpoint = new SparqlClient($modeDebug);
-				$endpoint->setEndpointRead($tempEndpoint);
-				$endpoint->setEndpointWrite($tempEndpoint);
+                // Need to add "update" as for the test suite DB and test DB
+				$endpoint->setEndpointRead($tempEndpoint . "update");
+				$endpoint->setEndpointWrite($tempEndpoint . "update");
 
                 $testsuite = new TestSuite($endpoint,"","");
                 $testsuite->importData($data["url"],$data["graphname"]);
