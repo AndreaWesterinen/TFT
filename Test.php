@@ -183,20 +183,19 @@ EOT;
 												 qt:data     ?graphData
 											  ]
 										].				
-				}
+				 }
 		}';
 		$rowsGraph = $ENDPOINT->query($qGraphInput,"rows");
 		foreach ($rowsGraph["result"]["rows"] as $rowGraph){
             $graphName = $rowGraph["graphData"];
+            // Loading a SERVICE endpoint's DEFAULT graph
+            // Parameters are the IRI for the data to load, the SERVICE name/URL, the DEFAULT graph and the SERVICE URL
             // Get the graph data from the local rdf-tests repository published as a simple HTTP server
-            if (str_contains($graphName, "http://www.w3.org/2009/sparql/docs/tests/data-sparql11/")) {
-                $graph0 = str_replace("http://www.w3.org/2009/sparql/docs/tests", "http://localhost:8080/rdf-tests/sparql11", $rowGraph["graphData"]);
-            } elseif (str_contains($graphName, "https://bordercloud.github.io/rdf-tests/sparql11/data-sparql11/")) {
-                $graph0 = str_replace("https://bordercloud.github.io", "http://localhost:8080", $rowGraph["graphData"]);
-            } else {
-                $graph0 = str_replace("https://AndreaWesterinen.github.io/GeoSPARQLBenchmark-Tests", "http://localhost:8080/geosparql-tests",
-                                      $rowGraph["graphData"]);
-            }
+            if (str_contains($graphName, "www.w3.org/")) {
+                $graph0 = str_replace("http://www.w3.org/2009/sparql/docs/tests", "https://andreawesterinen.github.io/rdf-tests/sparql11", $rowGraph["graphData"]);
+            } elseif (str_contains($graphName, "bordercloud.github.io")) {
+                $graph0 = str_replace("https://bordercloud.github.io", "http://andreawesterinen.github.io", $rowGraph["graphData"]);
+            } 
             if (isset($graph0)) {
                 $graphName = str_replace("manifest#", "", $graph0);
             }
@@ -380,7 +379,7 @@ EOT;
             // Need to process alternatives for GeoSPARQL
             if (str_contains($dataOutput["url"], "-alternative-")) {
                 $nbAlternatives = intval(substr($dataOutput["url"], strpos($dataOutput["url"], "-alternative-") + 13, 1));
-                $base_name = substr($dataOutput["url"], 0, strpos($dataOutput["url"], "-alternative-") + 12);
+                $base_name = substr($dataOutput["url"], 0, strpos($dataOutput["url"], "-alternative-") + 13);
                 $results_arr = array();
                 foreach (range(1, $nbAlternatives) as $i) {
                     array_push($results_arr, $base_name . strval($i) . ".srx");

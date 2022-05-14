@@ -44,18 +44,17 @@ class TestSuite
 
     function install()
     {
-        global $modeDebug, $modeVerbose;
+        global $modeDebug, $modeVerbose, $filepath;
         $success = true;
         $nb = 0;
         $listFileTTL = $this->listFileTTL();
         foreach ($listFileTTL as $value) {
             $path0 = str_replace($this->folder, $this->graph, $value[0]);
+            # Adjust to pull files from the revised andreawesterinen.github.io repository
             if (str_contains($path0, "bordercloud.github")) {
-                $path = str_replace("https://bordercloud.github.io", "http://localhost:8080", $path0);
-            } elseif (str_contains($path0, "AndreaWesterinen.github")) {
-                $path = str_replace("https://AndreaWesterinen.github.io/GeoSPARQLBenchmark-Tests", "http://localhost:8080/geosparql-tests", $path0);
+                $path = str_replace("https://bordercloud.github.io", "https://andreawesterinen.github.io", $path0);
             } else {
-                $path = str_replace("http://www.w3.org/2009/sparql/docs/tests", "http://localhost:8080/rdf-tests/sparql11", $path0);
+                $path = str_replace("http://www.w3.org/2009/sparql/docs/tests", "https://andreawesterinen.github.io/rdf-tests/sparql11", $path0);
             }
             if (is_string($value[1]) && preg_match("/manifest[^\.]*\.ttl$/i", $value[1])) {
                 echo ".";
@@ -63,7 +62,6 @@ class TestSuite
                 $nb++;
             }
         }
-
         echo "\n";
         echo $nb . " new graphs\n";
         return $success;
