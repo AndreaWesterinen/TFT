@@ -39,7 +39,7 @@ $CONFIG = parse_ini_file("config.ini", true);
 $listTriplestore =  $CONFIG["CONFIG"]["listTriplestore"];
 $JMETER =  $CONFIG["CONFIG"]["jmeter"];
 
-//List of test suite available that you can pass
+//List of test suites available that you can pass
 $listTestSuite =  $CONFIG["CONFIG"]["listTestSuite"];
 
 
@@ -56,55 +56,57 @@ USAGE : tft [-l|--list] [-t|--triplestore=NAME]
         ]
         [-v|-verbose]
         
-    --list                          List of servers available that you 
-                                        can test with this script.
-    -t, --triplestore=NAME              Example: --triplestore=standard or 
-                                                 --triplestore=4store
-                                            (by default : standard)
-    -o, --output                        Save results junit.xml in this folder.
-    -r, --recordResult=GRAPH            Save results EARL in the endpoint.
-    --softwareName=NAME                      Save name in the results EARL.
-    --softwareDescribeTag=TAG           Save last tag in the results EARL.
-    --softwareDescribe=DESCRIBE         Save git describe in the results EARL.
-	
-    -e, --endpointQueryAndUpdate=URL    Put url of endpoint to do query or 
-                                        update :
-                                            URL/sparql/?query=...
-                                            URL/update/?update=... (POST)
-    -q, --endpointQueryOnly=URL         Put url of endpoint to do query :
-                                            URL?query=...
-    -u, --endpointUpdateOnly=URL        Put url of endpoint to do query :
-                                            URL?update=... (POST)
-                                            
-    --nameParameterQuery=PARAMETER      Change the name of parameter in 
-                                        the request http to read.
-                                        (by default : query)
-    --nameParameterUpdate=PARAMETER     Change the name of parameter in 
-                                        the request http to write.
-                                        (by default : update)
-     -l, --login=LOGIN                  Server login
-     -p, --password=PASSWORD            Server password
+    --list                              List of servers available that you 
+                                          can test with this script
+    -o, --output                        Save results junit.xml in this folder
+    -r, --recordResult=GRAPH            Save results EARL in this 'test' 
+                                          endpoint's graph
+    --softwareName=NAME                 Name of the triplestore being tested
+                                            (stored in the results EARL)
+    --softwareDescribeTag=TAG           Tag of the triplestore being tested
+                                            (stored in the results EARL)
+    --softwareDescribe=DESCRIBE         Description/version of the triplestore 
+                                          being tested (stored in the results EARL)
     
-    -tt, --testtriplestore=NAME         Example: --triplestore=standard or 
-                                                 --triplestore=4store
-                                            (by default : standard)
-    -te, --testendpointQueryAndUpdate=URL    Put url of endpoint to do query or 
-                                        update :
+    -e, --endpointQueryAndUpdate=URL    URL of endpoint to store the tests and
+                                          results:
                                             URL/sparql/?query=...
                                             URL/update/?update=... (POST)
-    -tq, --testendpointQueryOnly=URL         Put url of endpoint to do query :
+    -q, --endpointQueryOnly=URL         URL of endpoint to query the tests:
                                             URL?query=...
-    -tu, --testendpointUpdateOnly=URL        Put url of endpoint to do query :
+    -u, --endpointUpdateOnly=URL        URL of endpoint to update the tests
+                                          and results:
                                             URL?update=... (POST)
-    --testnameParameterQuery=PARAMETER      Change the name of parameter in 
-                                        the request http to read.
-                                        (by default : query)
-    --testnameParameterUpdate=PARAMETER     Change the name of parameter in 
-                                        the request http to write.
-                                        (by default : update)
-     -tl, --testlogin=LOGIN             Test server login
-     -tp, --testpassword=PASSWORD       Test server password
-										
+    
+    --nameParameterQuery=PARAMETER      Change the name of the parameter in the
+                                          HTTP request to perform SPARQL queries
+                                            (by default : query)
+    --nameParameterUpdate=PARAMETER     Change the name of the parameter in the
+                                          HTTP request to perform SPARQL updates
+                                            (by default : update)
+    -l, --login=LOGIN                   Login to the triplestore for storing 
+                                          tests and their results
+    -p, --password=PASSWORD             Password for the login
+    
+    -tt, --testtriplestore=NAME             Example: --triplestore=standard or 
+                                                     --triplestore=4store
+                                                (by default : standard)
+    -te, --testendpointQueryAndUpdate=URL   URL of endpoint being tested:
+                                                URL/sparql/?query=...
+                                                URL/update/?update=... (POST)
+    -tq, --testendpointQueryOnly=URL        URL of query endpoint being tested:
+                                                URL?query=...
+    -tu, --testendpointUpdateOnly=URL       URL of update endpoint being tested:
+                                                URL?update=... (POST)
+    --testnameParameterQuery=PARAMETER      Change the name of the parameter in the
+                                              HTTP request to perform SPARQL queries
+                                                (by default : query)
+    --testnameParameterUpdate=PARAMETER     Change the name of the parameter in the
+                                              HTTP request to perform SPARQL updates
+                                                (by default : update)
+    -tl, --testlogin=LOGIN                  Login to the triplestore being tested
+    -tp, --testpassword=PASSWORD            Password for the login
+    
     -v, --verbose                       Mode verbose
     -d, --debug                         Mode debug
 ";
@@ -184,13 +186,13 @@ for($i = 1; $i < count($argv); $i++)  {
 			exit();
 		case "-o":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -o (see --help)\n";
+				echo "ERROR : Forgot the parameter after -o (see --help)\n";
 				exit();
 			}
 			$OUTPUT_FOLDER_RESULTS_JUNIT = $argv[$i + 1];
 			if(file_exists($OUTPUT_FOLDER_RESULTS_JUNIT) === FALSE){
 				if(! mkdir($OUTPUT_FOLDER_RESULTS_JUNIT,0777, $recursive = true)){
-					echo "ERROR : The output didn't find\n";
+					echo "ERROR : The junit output dirctory was not found\n";
 					exit();
 				}
 			}
@@ -198,37 +200,37 @@ for($i = 1; $i < count($argv); $i++)  {
 			break;
 		case "--output":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --output (see --help)\n";
+				echo "ERROR : Forgot the parameter after --output (see --help)\n";
 				exit();
 			}
 			$OUTPUT_FOLDER_RESULTS_JUNIT = $param[1];
 			if(file_exists($OUTPUT_FOLDER_RESULTS_JUNIT) === FALSE){
 				if(! mkdir($OUTPUT_FOLDER_RESULTS_JUNIT,0777, $recursive = true)){
-					echo "ERROR : The output didn't find\n";
+					echo "ERROR: The junit output dirctory was not found\n";
 					exit();
 				}
 			}
 			break;
 		case "-r":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -r (see --help)\n";
+				echo "ERROR : Forgot the parameter after -r (see --help)\n";
 				exit();
 			}
 			$GRAPH_RESULTS_EARL = $argv[$i + 1];
 			if( parse_url($GRAPH_RESULTS_EARL) === FALSE){
-				echo "ERROR : The name of graph has to be a URL.\n";
+				echo "ERROR : The name of the graph holding the test results has to be a URL.\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--recordResult":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --recordResult (see --help)\n";
+				echo "ERROR : Forgot the parameter after --recordResult (see --help)\n";
 				exit();
 			}
 			$GRAPH_RESULTS_EARL = $param[1];
 			if( parse_url($GRAPH_RESULTS_EARL) === FALSE){
-				echo "ERROR : The name of graph has to be a URL.\n";
+				echo "ERROR : The name of the graph holding the test results has to be a URL.\n";
 				exit();
 			}
 			break;
@@ -240,21 +242,21 @@ for($i = 1; $i < count($argv); $i++)  {
 			*/
 		case "--softwareName":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --softwareName (see --help)\n";
+				echo "ERROR : Forgot the parameter after --softwareName (see --help)\n";
 				exit();
 			}
 			$SOFTWARE_NAME_EARL = $param[1];
 			break;
 		case "--softwareDescribeTag":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --output (see --help)\n";
+				echo "ERROR : Forgot the parameter after --softwareDescribeTag (see --help)\n";
 				exit();
 			}
 			$SOFTWARE_DESCRIBE_TAG_EARL = $param[1];
 			break;
 		case "--softwareDescribe":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --output (see --help)\n";
+				echo "ERROR : Forgot the parameter after --softwareDescribe (see --help)\n";
 				exit();
 			}
 			$SOFTWARE_DESCRIBE_EARL = $param[1];
@@ -263,33 +265,34 @@ for($i = 1; $i < count($argv); $i++)  {
 		case "--init":
 			$init = true;
 			break;
-//////////////////////////////////////////////////////////////////////////////////
-		case "-t":
+		/* case "-t":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -t (see --help)\n";
+				echo "ERROR : Forgot the parameter after -t (see --help)\n";
 				exit();
 			}
 			$triplestore = $argv[$i + 1];
 			if(! in_array($triplestore, $listTriplestore)){
-				echo "ERROR : This triplestore is not available\n";
+				echo "ERROR : The test triplestore is not available\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--triplestore":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --triplestore (see --help)\n";
+				echo "ERROR : Forgot the parameter after --triplestore (see --help)\n";
 				exit();
 			}
 			$triplestore = $param[1];
 			if(! in_array($triplestore, $listTriplestore)){
-				echo "ERROR : This triplestore is not available\n";
+				echo "ERROR : The test triplestore is not available\n";
 				exit();
 			}
 			break;
+        */
+//////////////////////////////////////////////////////////////////////////////////
 		case "-l":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -l (see --help)\n";
+				echo "ERROR : Forgot the parameter after -l (see --help)\n";
 				exit();
 			}
 			$endpointLogin = $argv[$i + 1];
@@ -297,14 +300,14 @@ for($i = 1; $i < count($argv); $i++)  {
 			break;
 		case "--login":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --login (see --help)\n";
+				echo "ERROR : Forgot the parameter after --login (see --help)\n";
 				exit();
 			}
 			$endpointLogin = $param[1];
 			break;
 		case "-p":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -p (see --help)\n";
+				echo "ERROR : Forgot the parameter after -p (see --help)\n";
 				exit();
 			}
 			$endpointPassword = $argv[$i + 1];
@@ -312,90 +315,90 @@ for($i = 1; $i < count($argv); $i++)  {
 			break;
 		case "--password":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --password (see --help)\n";
+				echo "ERROR : Forgot the parameter after --password (see --help)\n";
 				exit();
 			}
 			$endpointPassword = $param[1];
 			break;
 		case "-e":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -e (see --help)\n";
+				echo "ERROR : Forgot the parameter after -e (see --help)\n";
 				exit();
 			}
 			$endpointQueryAndUpdate = $argv[$i + 1];
 			if(! filter_var($endpointQueryAndUpdate, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint for query and update of the test data is not valid\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--endpointQueryAndUpdate":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --endpointQueryAndUpdate (see --help)\n";
+				echo "ERROR : Forgot the parameter after --endpointQueryAndUpdate (see --help)\n";
 				exit();
 			}
 			$endpointQueryAndUpdate = $param[1];
 			if(! filter_var($endpointQueryAndUpdate, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint for query and update of the test data is not valid\n";
 				exit();
 			}
 			break;
 		case "-q":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -q (see --help)\n";
+				echo "ERROR : Forgot the parameter after -q (see --help)\n";
 				exit();
 			}
 			$endpointQueryOnly = $argv[$i + 1];
 			if(! filter_var($endpointQueryOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint for query of the test data is not valid\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--endpointQueryOnly":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --endpointQueryOnly (see --help)\n";
+				echo "ERROR : Forgot the parameter after --endpointQueryOnly (see --help)\n";
 				exit();
 			}
 			$endpointQueryOnly = $param[1];
 			if(! filter_var($endpointQueryOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint for query of the test data is not valid\n";
 				exit();
 			}
 			break;
 		case "-u":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -u (see --help)\n";
+				echo "ERROR : Forgot the parameter after -u (see --help)\n";
 				exit();
 			}
 			$endpointUpdateOnly = $argv[$i + 1];
 			if(! filter_var($endpointUpdateOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint for update of the test data is not valid\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--endpointUpdateOnly":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --endpointUpdateOnly (see --help)\n";
+				echo "ERROR : Forgot the parameter after --endpointUpdateOnly (see --help)\n";
 				exit();
 			}
 			$endpointUpdateOnly = $param[1];
 			if(! filter_var($endpointUpdateOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint for update of the test data is not valid\n";
 				exit();
 			}
 			break;
 		case "--nameParameterQuery":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --nameParameterQuery (see --help)\n";
+				echo "ERROR : Forgot the parameter after --nameParameterQuery (see --help)\n";
 				exit();
 			}
 			$nameParameterQuery  = $param[1];
 			break;
 		case "--nameParameterUpdate":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --nameParameterUpdate (see --help)\n";
+				echo "ERROR : Forgot the parameter after --nameParameterUpdate (see --help)\n";
 				exit();
 			}
 			$nameParameterUpdate  = $param[1];
@@ -403,106 +406,106 @@ for($i = 1; $i < count($argv); $i++)  {
 ////////////////////////////////////////////////////////
 		case "-tt":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -tt (see --help)\n";
+				echo "ERROR : Forgot the parameter after -tt (see --help)\n";
 				exit();
 			}
 			$TTRIPLESTORE = $argv[$i + 1];
 			if(! in_array($TTRIPLESTORE, $listTriplestore)){
-				echo "ERROR : This triplestore is not available\n";
+				echo "ERROR : The triplestore being tested is not available\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--testtriplestore":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --testtriplestore (see --help)\n";
+				echo "ERROR : Forgot the parameter after --testtriplestore (see --help)\n";
 				exit();
 			}
 			$TTRIPLESTORE = $param[1];
 			if(! in_array($TTRIPLESTORE, $listTriplestore)){
-				echo "ERROR : This triplestore is not available\n";
+				echo "ERROR : The triplestore being tested is not available\n";
 				exit();
 			}
 			break;
 		case "-te":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -te (see --help)\n";
+				echo "ERROR : Forgot the parameter after -te (see --help)\n";
 				exit();
 			}
 			$tendpointQueryAndUpdate = $argv[$i + 1];
 			if(! filter_var($tendpointQueryAndUpdate, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint being tested (for query and update) is not valid\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--testendpointQueryAndUpdate":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --testendpointQueryAndUpdate (see --help)\n";
+				echo "ERROR : Forgot the parameter after --testendpointQueryAndUpdate (see --help)\n";
 				exit();
 			}
 			$tendpointQueryAndUpdate = $param[1];
 			if(! filter_var($tendpointQueryAndUpdate, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint being tested (for query and update) is not valid\n";
 				exit();
 			}
 			break;
 		case "-tq":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -tq (see --help)\n";
+				echo "ERROR : Forgot the parameter after -tq (see --help)\n";
 				exit();
 			}
 			$tendpointQueryOnly = $argv[$i + 1];
 			if(! filter_var($tendpointQueryOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint being tested (for query) is not valid\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--testendpointQueryOnly":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --tendpointQueryOnly (see --help)\n";
+				echo "ERROR : Forgot the parameter after --tendpointQueryOnly (see --help)\n";
 				exit();
 			}
 			$testendpointQueryOnly = $param[1];
 			if(! filter_var($tendpointQueryOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint being tested (for query) is not valid\n";
 				exit();
 			}
 			break;
 		case "-tu":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -tu (see --help)\n";
+				echo "ERROR : Forgot the parameter after -tu (see --help)\n";
 				exit();
 			}
 			$tendpointUpdateOnly = $argv[$i + 1];
 			if(! filter_var($tendpointUpdateOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint being tested (for update) is not valid\n";
 				exit();
 			}
 			$i++;
 			break;
 		case "--testendpointUpdateOnly":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --testendpointUpdateOnly (see --help)\n";
+				echo "ERROR : Forgot the parameter after --testendpointUpdateOnly (see --help)\n";
 				exit();
 			}
 			$tendpointUpdateOnly = $param[1];
 			if(! filter_var($tendpointUpdateOnly, FILTER_VALIDATE_URL)){
-				echo "ERROR : The URL of endpoint is not valid\n";
+				echo "ERROR : The URL of the endpoint being tested (for update) is not valid\n";
 				exit();
 			}
 			break;
 		case "--testnameParameterQuery":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --nameParameterQuery (see --help)\n";
+				echo "ERROR : Forgot the parameter after --nameParameterQuery (see --help)\n";
 				exit();
 			}
 			$tnameParameterQuery  = $param[1];
 			break;
 		case "--testnameParameterUpdate":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --nameParameterUpdate (see --help)\n";
+				echo "ERROR : Forgot the parameter after --nameParameterUpdate (see --help)\n";
 				exit();
 			}
 			$tnameParameterUpdate  = $param[1];
@@ -510,7 +513,7 @@ for($i = 1; $i < count($argv); $i++)  {
 
 		case "-tl":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -tl (see --help)\n";
+				echo "ERROR : Forgot the parameter after -tl (see --help)\n";
 				exit();
 			}
 			$tendpointLogin = $argv[$i + 1];
@@ -518,14 +521,14 @@ for($i = 1; $i < count($argv); $i++)  {
 			break;
 		case "--testlogin":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --testlogin (see --help)\n";
+				echo "ERROR : Forgot the parameter after --testlogin (see --help)\n";
 				exit();
 			}
 			$tendpointLogin = $param[1];
 			break;
 		case "-tp":
 			if(! array_key_exists($i + 1, $argv)){
-				echo "ERROR : forget parameter after -tp (see --help)\n";
+				echo "ERROR : Forgot the parameter after -tp (see --help)\n";
 				exit();
 			}
 			$tendpointPassword = $argv[$i + 1];
@@ -533,7 +536,7 @@ for($i = 1; $i < count($argv); $i++)  {
 			break;
 		case "--testpassword":
 			if(! array_key_exists(1, $param)){
-				echo "ERROR : forget parameter after --testpassword (see --help)\n";
+				echo "ERROR : Forgot the parameter after --testpassword (see --help)\n";
 				exit();
 			}
 			$tendpointPassword = $param[1];
@@ -564,7 +567,7 @@ $readonly = false;
 
 $ENDPOINT = null;
 if ($endpointQueryOnly == "" && $endpointUpdateOnly == "" && $endpointQueryAndUpdate == "") {
-    echo "ERROR : The endpoint didn't find\n";
+    echo "ERROR : The endpoint was not found\n";
     exit();
 } elseif ($endpointQueryAndUpdate != "") {
     $ENDPOINT = new SparqlClient($modeDebug);

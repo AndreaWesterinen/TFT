@@ -81,7 +81,7 @@ EOT;
 		$type = Mimetype::getMimetypeOfFilenameExtensions($extension);
 
 		if($type === NULL){
-		    $this->AddFail("DataResultExpected has an extension unknown : ".$extension." (".$url.")");
+		    $this->AddFail("DataResultExpected has an unknwon extension: ".$extension." (".$url.")");
 		    print_r($this->_fails);
 		    exit();
 		}
@@ -187,19 +187,10 @@ EOT;
 		}';
 		$rowsGraph = $ENDPOINT->query($qGraphInput,"rows");
 		foreach ($rowsGraph["result"]["rows"] as $rowGraph){
-            $graphName = $rowGraph["graphData"];
+            $graphData = str_replace("manifest#", "", $rowGraph["graphData"]);
             // Loading a SERVICE endpoint's DEFAULT graph
             // Parameters are the IRI for the data to load, the SERVICE name/URL, the DEFAULT graph and the SERVICE URL
-            // Get the graph data from the local rdf-tests repository published as a simple HTTP server
-            if (str_contains($graphName, "www.w3.org/")) {
-                $graph0 = str_replace("http://www.w3.org/2009/sparql/docs/tests", "https://andreawesterinen.github.io/rdf-tests/sparql11", $rowGraph["graphData"]);
-            } elseif (str_contains($graphName, "bordercloud.github.io")) {
-                $graph0 = str_replace("https://bordercloud.github.io", "http://andreawesterinen.github.io", $rowGraph["graphData"]);
-            } 
-            if (isset($graph0)) {
-                $graphName = str_replace("manifest#", "", $graph0);
-            }
-            $this->addGraphInput($graphName,$rowGraph["endpoint"],"DEFAULT",$rowGraph["endpoint"]);
+            $this->addGraphInput($graphData,$rowGraph["endpoint"],"DEFAULT",$rowGraph["endpoint"]);
 		}
 	}
 
@@ -257,7 +248,7 @@ EOT;
 
 				// check
 				if(count( $this->_tabDiff)>0){
-					$this->AddFail("The test is failed.". $message);
+					$this->AddFail("The test has failed.". $message);
 				}
 			}
 		}
@@ -324,13 +315,13 @@ EOT;
                     $nbGraphs = $this->countGraphs();
                     if($nbTriples > 0 || $nbGraphs > 0) {
                         $this->AddFail(
-                            "The test is failed.". $message
+                            "The test has failed.". $message
                             ."Nb triples found : ".$nbTriples."\n"
                             ."Nb graphs found : ".$nbGraphs."\n"
                         );
                     }
                 } elseif(count($this->_tabDiff)>0) {
-					$this->AddFail("The test is failed.". $message);
+					$this->AddFail("The test has failed.". $message);
 				}
 			}
 		}
