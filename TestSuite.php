@@ -49,7 +49,8 @@ class TestSuite
         $nb = 0;
         $listFileTTL = $this->listFileTTL();
         foreach ($listFileTTL as $value) {
-            $path = str_replace($this->folder, $this->graph, $value[0]);
+            $path = str_replace($this->graph, $this->folder, $value[0]);
+            $path = "http://localhost:8000/$path";
             if (is_string($value[1]) && preg_match("/manifest[^\.]*\.ttl$/i", $value[1])) {
                 echo ".";
                 Tools::loadData($this->endpoint, $path, $this->graph);

@@ -8,7 +8,7 @@ class ProtocolTest {
 		$q = Test::PREFIX.'
 		SELECT (COUNT(?s) AS ?count) WHERE {
 			GRAPH <'.$GRAPHTESTS .'> { ?s a mf:ProtocolTest ;
-							 dawgt:approval dawgt:ApprovedMustToHave .}} ';
+							 dawgt:approval dawgt:Approved .}} ';
 		$res = $ENDPOINT->query($q, 'row');
 		$err = $ENDPOINT->getErrors();
 		if ($err) {
@@ -35,7 +35,7 @@ class ProtocolTest {
 					?testiri a 		mf:ProtocolTest ;
 						 mf:name    	?name ;
 						 mf:action 	?jmeterPlanTest  ;
-						 dawgt:approval dawgt:ApprovedMustToHave .
+						 dawgt:approval dawgt:Approved .
 				 }
 		}
 		 ORDER BY ?testiri
@@ -111,7 +111,7 @@ class ProtocolTest {
                 echo ".";
                 $Report->addTestCasePassed($iriTest,$iriAssertProtocol,$labelAssertProtocol);
             }else{
-                echo "F";//"\n".$nameTestQueryPassed." PASSED";
+                echo "F";//"\n".$nameTestQueryFailed." FAILED";
 
                 $Report->addTestCaseFailure($iriTest,$iriAssertProtocol,$labelAssertProtocol,
                     print_r($fail,true). print_r($err,true));

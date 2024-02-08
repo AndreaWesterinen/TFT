@@ -658,9 +658,9 @@ foreach($listTestSuite as $URL => $folder){
 	$TAGTESTS =  str_replace("/", "", $folder);;
 	//////////////////////////// TESTS
 
-	ProtocolTest::doAllTests();
-
-	// TODO ?
+	// TODO
+    //ProtocolTest::doAllTests();
+    //GraphStoreProtocolTest::doAllTests();
 	//ServiceDescriptionTest::doAllTests();
 
 	PositiveSyntaxTest::doAllTests();

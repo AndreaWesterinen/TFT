@@ -169,7 +169,7 @@ ORDER BY ?testiri
 
             if ($row["testSkipped"]){
                 echo "S";
-                $messageSkipped = "TFT not supports tests with Entailment regime.";
+                $messageSkipped = "TFT does not support tests of Entailment.";
                 $Report->addTestCaseSkipped($iriTest,$iriAssertProtocol,$labelAssertProtocol,$messageSkipped);
                 echo "S";
                 $Report->addTestCaseSkipped($iriTest,$iriAssertResponse,$labelAssertResponse,$messageSkipped);
@@ -192,10 +192,10 @@ ORDER BY ?testiri
 			$err = $test->GetErrors();
 			$fail = $test->GetFails();
 			if (count($err) != 0) {
-                echo "E";//echo "\n".$nameTestQueryPassed." ERROR";
+                echo "E";//echo "\n".$nameTestQueryFailed." ERROR";
                 $Report->addTestCaseError($iriTest,$iriAssertProtocol,$labelAssertProtocol,
                     print_r($err,true));
-                echo "S";//echo "\n".$nameTestQueryDataPassed." SKIP";
+                echo "S";//echo "\n".$nameTestQueryDataFailed." SKIP";
                 $Report->addTestCaseSkipped($iriTest,$iriAssertResponse,$labelAssertResponse,
                 "Cannot read result because test:" . $iriAssertProtocol . " is failed."
                 );
