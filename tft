@@ -651,6 +651,10 @@ Configuration about tests :
 */
 
 foreach($listTestSuite as $URL => $folder){
+    // Don't repeat tests; localhost:8000 defined as artifact in config.ini to retrieve local test details
+    if (str_contains($URL, "localhost:8000")) {
+        continue;
+    }
 	echo "==================================================================\n";
 	echo "TEST : ".$URL."\n";
 	$FOLDERTESTS = $folder;
@@ -669,7 +673,8 @@ foreach($listTestSuite as $URL => $folder){
 
 	QueryEvaluationTest::doAllTests();
 
-	CSVResultFormatTest::doAllTests();
+	//todo - Fix BorderCloud SPARQL Client Mimetype; spaces should not be in mimetype definition
+    CSVResultFormatTest::doAllTests();
 
 	UpdateEvaluationTest::doAllTests();
 

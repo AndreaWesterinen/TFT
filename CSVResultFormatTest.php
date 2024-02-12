@@ -96,8 +96,11 @@ class CSVResultFormatTest {
 			}
 
 			$test = new Test(trim($row["queryTest"]),$iriTest);
-			$test->addGraphInput(trim($row["graphInput"]));
-			$test->addGraphOutput(trim($row["graphOutput"]));
+            
+            $graphName = "DEFAULT";
+            $test->addGraphOutput(trim($row["graphOutput"]),$graphName,$graphName);
+            $test->addGraphInput(trim($row["graphInput"]),$graphName,$graphName);
+            
 			$test->doQuery(true);
 			$err = $test->GetErrors();
 			$fail = $test->GetFails();

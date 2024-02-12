@@ -78,17 +78,17 @@ EOT;
 
 		preg_match("/^.*\.([^\.]+)$/i", $url, $matches);
 		$extension = $matches[1];
-		$type = Mimetype::getMimetypeOfFilenameExtensions($extension);
+        $type = Mimetype::getMimetypeOfFilenameExtensions($extension);
 
-		if($type === NULL){
-		    $this->AddFail("DataResultExpected has an unknwon extension: ".$extension." (".$url.")");
+        if ($type == NULL) {
+		    $this->AddFail("DataResultExpected has an unknown extension: ".$extension." (".$url.")");
 		    print_r($this->_fails);
 		    exit();
-		}
+        }
 		return $type;
 	}
 
-	function addGraphInput($url, $name="DEFAULT", $graphname="DEFAULT",$endpoint="DEFAULT")
+	function addGraphInput($url, $name, $graphname="DEFAULT",$endpoint="DEFAULT")
 	{
 		$this->ListGraphInput[$name]= array ("graphname"=>$graphname,"url"=>$url,"mimetype"=> $this->getType($url),"endpoint"=>$endpoint);
 	}
@@ -120,19 +120,20 @@ EOT;
 					}				
 				}
 				
-            BIND(BOUND(?graphName) AS ?graphNameExist)
+          BIND(BOUND(?graphName) AS ?graphNameExist)
 		}';
 
         $rowsGraph = $ENDPOINT->query($qGraphInput,"rows");
         //print_r($rowsGraph);
         foreach ($rowsGraph["result"]["rows"] as $rowGraph){
             if ($rowGraph["graphNameExist"]) {
-                $this->addGraphInput($rowGraph["graphDataContent"],$rowGraph["graphName"],$rowGraph["graphName"]);
+                $this->addGraphInput(trim($rowGraph["graphDataContent"]),$rowGraph["graphName"],$rowGraph["graphName"]);
             } else {
-                $this->addGraphInput($rowGraph["graphData"],$rowGraph["graphData"],$rowGraph["graphData"]);
+                $this->addGraphInput(trim($rowGraph["graphData"]),$rowGraph["graphData"],$rowGraph["graphData"]);
             }
         }
     }
+
     function readAndAddMultigraphOutput($graphTest,$iriTest,$query=true)
     {
         global $ENDPOINT;
@@ -158,7 +159,7 @@ EOT;
 					}				
 				}
 				
-            BIND(BOUND(?graphName) AS ?graphNameExist)
+         BIND(BOUND(?graphName) AS ?graphNameExist)
 		}';
         $rowsGraph = $ENDPOINT->query($qGraphOutput,"rows");
         foreach ($rowsGraph["result"]["rows"] as $rowGraph){
@@ -189,7 +190,7 @@ EOT;
 		foreach ($rowsGraph["result"]["rows"] as $rowGraph){
             $graphData = str_replace("manifest#", "", $rowGraph["graphData"]);
             // Loading a SERVICE endpoint's DEFAULT graph
-            // Parameters are the IRI for the data to load, the SERVICE name/URL, the DEFAULT graph and the SERVICE URL
+            // Parameters are the IRI for the data to load, the name of the array element, the DEFAULT graph and the SERVICE URL
             $this->addGraphInput($graphData,$rowGraph["endpoint"],"DEFAULT",$rowGraph["endpoint"]);
 		}
 	}
@@ -355,7 +356,7 @@ EOT;
 		foreach ($this->ListGraphInput as $name=>$data) {
 			$message .= "FILE <".$data["url"]."> \n";
 			$message .= "GRAPH <".$data["graphname"]."> :\n";
-			$message .= $data["content"]."\n";
+			$message .= $data["endpoint"]."\n";
 			$message .= "\n---------------------------\n";
 		}
 
@@ -446,13 +447,13 @@ EOT;
                 $tabDiff = ParserSparqlResult::compare($tabResultDataExpected,$tabResultDataset,$sort,$distinct);
 				//$test = true;
 				break;
-			case "text/tab-separated-values; charset=utf-8":
+			case "text/tab-separated-values; charset=utf-8":    // ARW: Should not have space; Error in Mimetype in the BorderCloud SPARQL repo
 				$tabResultDataExpected = ParserCSV::csvToArray($expected,"\t");
 				$tabResultDataset = ParserCSV::csvToArray($result,"\t");
                 $tabDiff = ParserCSV::compare($tabResultDataExpected,$tabResultDataset,$sort,$distinct);
 
 				break;
-			case "text/csv; charset=utf-8":
+			case "text/csv; charset=utf-8":    // ARW: Should not have space; Error in Mimetype in the BorderCloud SPARQL repo
 				$tabResultDataExpected = ParserCSV::csvToArray($expected);
 				$tabResultDataset = ParserCSV::csvToArray($result);
                 $tabDiff = ParserCSV::compare($tabResultDataExpected,$tabResultDataset,$sort,$distinct);
@@ -574,11 +575,11 @@ EOT;
 		    foreach ($CONFIG["SERVICE"]["endpoint"] as $tempEndpoint){
 			    // TODO query to identify the software...
 			    $endpoint = new SparqlClient($modeDebug);
-                // Need to add "update" as for the test suite DB and test DB
-                $endpoint->setEndpointRead($tempEndpoint . "update");
-                $endpoint->setEndpointWrite($tempEndpoint . "update");
+                // Need to replace service endpoint URLs for write
+                $endpoint->setEndpointRead($tempEndpoint);
+                $endpoint->setEndpointWrite(str_replace("/query", "/update", $tempEndpoint));
 
-			    $q = "DELETE { GRAPH ?g  { ?o ?p ?v } } WHERE  { GRAPH ?g  { ?o ?p ?v . } }";
+			    $q = "CLEAR ALL";
 			   //echo "t:".$tempEndpoint."\n";
 			    $res = $endpoint->queryUpdate($q);
 		    }
@@ -589,7 +590,7 @@ EOT;
 		global $modeDebug,$modeVerbose,$TESTENDPOINT,$TTRIPLESTORE,$CONFIG;
 		foreach ($this->ListGraphInput as $name=>$data){
             $content = $this->LoadContentFile($data["url"]);
-			$this->ListGraphInput[$name]["content"]=$content ;
+			//$this->ListGraphInput[$name]["content"]=$content ;
 
             $testsuite = null;
 			if($this->ListGraphInput[$name]["endpoint"] == "DEFAULT"){
@@ -621,8 +622,9 @@ EOT;
 
 				$endpoint = new SparqlClient($modeDebug);
                 // Need to add "update" as for the test suite DB and test DB
-				$endpoint->setEndpointRead($tempEndpoint . "update");
-				$endpoint->setEndpointWrite($tempEndpoint . "update");
+				$endpoint->setEndpointRead($tempEndpoint);
+                $endpoint->setEndpointWrite(str_replace("/query", "/update", $tempEndpoint));
+				//$endpoint->setEndpointWrite($tempEndpoint . "update");
 
                 $testsuite = new TestSuite($endpoint,"","");
                 $testsuite->importData($data["url"],$data["graphname"]);

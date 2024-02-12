@@ -27,14 +27,14 @@ class UpdateEvaluationTest {
 		$q = Test::PREFIX.' 
 SELECT DISTINCT ?testiri ?name ?queryTest 
 ?dataInput ?dataOutput
-?dataInputExist ?graphDataInputExist ?serviceDataInputExist
-?dataOutputExist ?graphDataOutputExist
+?graphDataInput ?serviceDataInput
+?dataOutput ?graphDataOutput
 WHERE {
     GRAPH <'.$GRAPHTESTS.'> {
       #  VALUES ?testiri {<http://www.w3.org/2009/sparql/docs/tests/data-sparql11/construct/manifest#constructwhere04>}
-        ?manifest   a mf:Manifest ;
-                    mf:entries  ?collection .
-					?collection rdf:rest*/rdf:first  ?testiri .
+      #  ?manifest   a mf:Manifest ;
+      #              mf:entries  ?collection .
+	  #				?collection rdf:rest*/rdf:first  ?testiri .
 					
 		?testiri 	a mf:UpdateEvaluationTest ;
 					mf:name	?name ;
@@ -55,12 +55,12 @@ WHERE {
 		OPTIONAL {
 			?testiri mf:result [ ut:graphData ?graphDataOutput ]		
 		}
-        BIND(BOUND(?dataInput) AS ?dataInputExist)
-        BIND(BOUND(?graphDataInput) AS ?graphDataInputExist)
-        BIND(BOUND(?serviceDataInput) AS ?serviceDataInputExist)	
+        # BIND(BOUND(?dataInput) AS ?dataInputExist)
+        # BIND(BOUND(?graphDataInput) AS ?graphDataInputExist)
+        # BIND(BOUND(?serviceDataInput) AS ?serviceDataInputExist)	
     
-        BIND(BOUND(?dataOutput) AS ?dataOutputExist)
-        BIND(BOUND(?graphDataOutput) AS ?graphDataOutputExist)
+        #BIND(BOUND(?dataOutput) AS ?dataOutputExist)
+        #BIND(BOUND(?graphDataOutput) AS ?graphDataOutputExist)
     }
 }
 ORDER BY ?testiri
@@ -122,23 +122,21 @@ ORDER BY ?testiri
 			$test = new Test(trim($row["queryTest"]),$iriTest);
 
             $graphName = "DEFAULT";
-            if($row["dataInputExist"]){
+            if (array_key_exists("dataInput", $row)) {
                 $test->addGraphInput(trim($row["dataInput"]),$graphName,$graphName);
             }
-            if($row["graphDataInputExist"]){
-                $test->readAndAddMultigraphInput($GRAPHTESTS,$iriTest,false); //todo check error http://www.w3.org/2009/sparql/docs/tests/data-sparql11/exists/exists03.rq
+            if(array_key_exists("graphDataInput", $row)) {
+                $test->readAndAddMultigraphInput($GRAPHTESTS,$iriTest,false); 
             }
-            if($row["serviceDataInputExist"]){
-                throw new Exception("not tested");
+            if(array_key_exists("serviceDataInput", $row)) {
+                //throw new Exception("not tested");
                 $test->readAndAddService($GRAPHTESTS,$iriTest);
             }
-
-            $graphName = "DEFAULT";
-            if($row["dataOutputExist"]){
+            if(array_key_exists("dataOutput", $row)) {
                 $test->addGraphOutput(trim($row["dataOutput"]),$graphName,$graphName);
             }
-            if($row["graphDataOutputExist"]){
-                $test->readAndAddMultigraphOutput($GRAPHTESTS,$iriTest,false); //todo check error http://www.w3.org/2009/sparql/docs/tests/data-sparql11/exists/exists03.rq
+            if(array_key_exists("graphDataOutput", $row)) {
+                $test->readAndAddMultigraphOutput($GRAPHTESTS,$iriTest,false); 
             }
 			/*echo "ListGraphInput";
 			echo $iriTest;

@@ -24,12 +24,15 @@ class Tools
         global $modeDebug,$modeVerbose;
         $endpoint->ResetErrors();
         $newUrl = str_replace("manifest#", "", $urldata);
+        
         if($graph == "DEFAULT"){
             $q = 'LOAD <'.$newUrl.'>';
         }else{
             $q = 'LOAD <'.$newUrl.'> INTO GRAPH <'.$graph.'>';
         }
-
+        $endpointWrite = $endpoint->getEndpointWrite();
+        // Make sure that the endpoint is "update" and not "query" - which is set for SERVICE endpoints
+        $endpoint->setEndpointWrite(str_replace("/query", "/update", $endpointWrite));
         $res = $endpoint->queryUpdate($q);
         $err = $endpoint->getErrors();
         if ($err) {

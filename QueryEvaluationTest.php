@@ -57,16 +57,15 @@ TESTS : QueryEvaluationTest";// ( ".QueryEvaluationTest::countApprovedTests()." 
 		$Report = new TestsReport("QueryEvaluationTest",$TAGTESTS.'-QueryEvaluationTest-junit.xml');
 		$q = Test::PREFIX.' 
 SELECT DISTINCT ?testiri ?name ?queryTest 
-?dataInput ?dataOutput
-?dataInputExist ?graphDataInputExist ?serviceDataInputExist
+?dataInput ?dataOutput ?graphDataInput ?serviceDataInput
 ?testSkipped
 WHERE {
     GRAPH <'.$GRAPHTESTS .'> {
      #VALUES ?testiri {<http://www.w3.org/2009/sparql/docs/tests/data-sparql11/csv-tsv-res/manifest#tsv02>}
-        ?manifest   a  mf:Manifest ;
-                    mf:entries ?collection .
-        ?collection rdf:rest*/rdf:first ?testiri .
-			  
+     #    ?manifest   a  mf:Manifest ;
+     #               mf:entries ?collection .
+     #   ?collection rdf:rest*/rdf:first ?testiri .
+
 		?testiri a  mf:QueryEvaluationTest ;
 				 mf:name ?name ;
 				 dawgt:approval dawgt:Approved ;
@@ -83,10 +82,10 @@ WHERE {
 		OPTIONAL {
 			?testiri mf:action [ qt:serviceData ?serviceDataInput ]							
 		}	
-		
-        BIND(BOUND(?dataInput) AS ?dataInputExist)
-        BIND(BOUND(?graphDataInput) AS ?graphDataInputExist)
-        BIND(BOUND(?serviceDataInput) AS ?serviceDataInputExist)
+
+    #    BIND(BOUND(?dataInput) AS ?dataInputExist)
+    #    BIND(BOUND(?graphDataInput) AS ?graphDataInputExist)
+    #    BIND(BOUND(?serviceDataInput) AS ?serviceDataInputExist)
         
         #DISABLE TFT not supports tests with Entailment regime
         OPTIONAL {
@@ -178,13 +177,14 @@ ORDER BY ?testiri
 
             $graphName = "DEFAULT";
             $test->addGraphOutput(trim($row["dataOutput"]),$graphName,$graphName);
-            if($row["dataInputExist"]){
+            if (array_key_exists("dataInput", $row)){
                 $test->addGraphInput(trim($row["dataInput"]),$graphName,$graphName);
             }
-            if($row["graphDataInputExist"]){
-                $test->readAndAddMultigraphInput($GRAPHTESTS,$iriTest); //todo check error http://www.w3.org/2009/sparql/docs/tests/data-sparql11/exists/exists03.rq
+            
+            if (array_key_exists("graphDataInput", $row)){
+                $test->readAndAddMultigraphInput($GRAPHTESTS,$iriTest); 
             }
-            if($row["serviceDataInputExist"]){
+            if (array_key_exists("serviceDataInput", $row)){
                 $test->readAndAddService($GRAPHTESTS,$iriTest);
             }
 
